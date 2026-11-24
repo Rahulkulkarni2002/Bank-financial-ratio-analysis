@@ -1,5 +1,5 @@
 -- Bank Financial Ratio Analysis: the SQL queries from Bank.ipynb
--- Run in DuckDB after loading bank_financials.csv as the table 'financials' and creating the 'banks' table.
+-- Run in DuckDB after loading bank_financials.csv as the table 'financials'.
 
 -- Setup: the banks table
 CREATE TABLE banks (ticker VARCHAR, bank_name VARCHAR, bank_type VARCHAR);
@@ -11,7 +11,13 @@ INSERT INTO banks VALUES
     ('C', 'Citigroup', 'Universal bank'),
     ('GS', 'Goldman Sachs', 'Investment bank'),
     ('MS', 'Morgan Stanley', 'Investment bank'),
-    ('COF', 'Capital One', 'Card lender');
+    ('PNC', 'PNC', 'Regional bank'),
+    ('KEY', 'KeyCorp', 'Regional bank'),
+    ('CFG', 'Citizens', 'Regional bank'),
+    ('COF', 'Capital One', 'Card lender'),
+    ('AXP', 'American Express', 'Card lender'),
+    ('SCHW', 'Charles Schwab', 'Brokerage and custody'),
+    ('STT', 'State Street', 'Brokerage and custody');
 
 -- Query 1: One Row per Bank and Year
 CREATE VIEW bank_year AS
@@ -100,7 +106,7 @@ SELECT
     ROUND(f.roa_pct * t.typical_leverage, 2) AS roe_at_typical_leverage,
     ROUND(f.roe_pct - f.roa_pct * t.typical_leverage, 2) AS points_from_leverage,
     RANK() OVER (ORDER BY f.roe_pct DESC) AS rank_by_roe,
-    RANK() OVER (ORDER BY f.roa_pct DESC) AS rank_by_roa
+    RANK() OVER (ORDER BY f.roa_pct * t.typical_leverage DESC) AS rank_at_typical_leverage
 FROM five_year AS f
 CROSS JOIN typical AS t
 ORDER BY f.roe_pct DESC;
